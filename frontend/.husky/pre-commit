@@ -1,0 +1,13 @@
+#!/bin/sh
+set -e
+
+run_checks() {
+  cd frontend
+  npm run lint:fix
+  npm run format
+}
+
+if ! run_checks; then
+  echo "Pre-commit hook failed. Please fix the errors and try again."
+  exit 1
+fi
