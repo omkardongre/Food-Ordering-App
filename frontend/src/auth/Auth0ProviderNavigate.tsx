@@ -1,12 +1,12 @@
-import { useCreateMyUser } from '@/api/MyUserApi';
-import { AppState, Auth0Provider, User } from '@auth0/auth0-react';
+import { Auth0Provider } from '@auth0/auth0-react';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
   children: React.ReactNode;
 };
 
 const Auth0ProviderNavigate = ({ children }: Props) => {
-  const { createMyUser } = useCreateMyUser();
+  const navigate = useNavigate();
 
   const domain = import.meta.env.VITE_AUTH0_DOMAIN;
   const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID;
@@ -15,11 +15,10 @@ const Auth0ProviderNavigate = ({ children }: Props) => {
   if (!domain || !clientId || !redirectUri) {
     throw new Error('Missing Auth0 environment variables');
   }
-  const onRedirectCallback = (appState?: AppState, user?: User) => {
-    if (user?.sub && user.email) {
-      createMyUser({ auth0Id: user.sub, email: user.email });
-    }
+  const onRedirectCallback = () => {
+    navigate('/auth-callback');
   };
+
   return (
     <Auth0Provider
       domain={domain}
