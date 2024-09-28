@@ -14,7 +14,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 const formSchema = z.object({
-  email: z.string().email('Invalid email address').min(1, 'Email is required'),
+  email: z.string().optional(),
   name: z.string().min(1, 'Name is required'),
   addressLine1: z.string().min(1, 'Address Line 1 is required'),
   city: z.string().min(1, 'City is required'),
