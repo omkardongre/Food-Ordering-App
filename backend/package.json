@@ -10,7 +10,8 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "prepare": "cd .. && husky backend/.husky",
-    "build": "tsc"
+    "build": "npm install && npx tsc",
+    "start": "node ./dist/index.js"
   },
   "keywords": [],
   "author": "",
