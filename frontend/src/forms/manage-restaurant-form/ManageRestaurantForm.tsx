@@ -47,6 +47,7 @@ const formSchema = z.object({
     })
   ),
 
+  imageUrl: z.string().optional(),
   imageFile: z.instanceof(File, { message: 'Image is required' }),
 });
 
@@ -80,6 +81,7 @@ const ManageRestaurantForm = ({ restaurant, onSave, isLoading }: Props) => {
       estimatedDeliveryTime: restaurant.estimatedDeliveryTime,
       cuisines: restaurant.cuisines,
       menuItems: restaurant.menuItems,
+      imageUrl: restaurant.imageFile,
     });
   }, [restaurant, form]);
 
