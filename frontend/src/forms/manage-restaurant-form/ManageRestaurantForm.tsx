@@ -6,6 +6,9 @@ import DetailSection from './DetailsSection';
 import { Separator } from '@radix-ui/react-separator';
 import CuisinesSection from './CuisinesSection';
 import MenuSection from './MenuSection';
+import ImageSection from './ImageSection';
+import LoadingPageButton from '@/components/LoadingButton';
+import { Button } from '@/components/ui/button';
 
 const formSchema = z.object({
   restaurantName: z.string({
@@ -68,6 +71,13 @@ const ManageRestaurantForm = ({ onSave, isLoading }: Props) => {
         <CuisinesSection />
         <Separator />
         <MenuSection />
+        <Separator />
+        <ImageSection />
+        {isLoading ? (
+          <LoadingPageButton />
+        ) : (
+          <Button type="submit">Save</Button>
+        )}
       </form>
     </Form>
   );
