@@ -10,6 +10,7 @@ import ImageSection from './ImageSection';
 import LoadingPageButton from '@/components/LoadingButton';
 import { Button } from '@/components/ui/button';
 import { Restaurant } from '@/types';
+import { useEffect } from 'react';
 
 const formSchema = z.object({
   restaurantName: z.string({
@@ -46,17 +47,19 @@ const formSchema = z.object({
     })
   ),
 
+  imageUrl: z.string().optional(),
   imageFile: z.instanceof(File, { message: 'Image is required' }),
 });
 
 type RestaurantFormData = z.infer<typeof formSchema>;
 
 type Props = {
+  restaurant?: Restaurant;
   onSave: (restaurantFormData: FormData) => Promise<Restaurant>;
   isLoading: boolean;
 };
 
-const ManageRestaurantForm = ({ onSave, isLoading }: Props) => {
+const ManageRestaurantForm = ({ restaurant, onSave, isLoading }: Props) => {
   const form = useForm<RestaurantFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -64,6 +67,23 @@ const ManageRestaurantForm = ({ onSave, isLoading }: Props) => {
       menuItems: [{ name: '', price: 1 }],
     },
   });
+
+  useEffect(() => {
+    if (!restaurant) {
+      return;
+    }
+
+    form.reset({
+      restaurantName: restaurant.restaurantName,
+      city: restaurant.city,
+      country: restaurant.country,
+      deliveryPrice: restaurant.deliveryPrice,
+      estimatedDeliveryTime: restaurant.estimatedDeliveryTime,
+      cuisines: restaurant.cuisines,
+      menuItems: restaurant.menuItems,
+      imageUrl: restaurant.imageFile,
+    });
+  }, [restaurant, form]);
 
   const onSubmit = (formDataJson: RestaurantFormData) => {
     const formData = new FormData();
