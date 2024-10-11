@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import myUserRoute from './routes/MyUserRoutes';
 import myRestaurantRoute from './routes/MyRestaurantRoute';
+import restaurantRoute from './routes/RestaurantRoute';
 import { v2 as cloudinary } from 'cloudinary';
 
 dotenv.config();
@@ -29,6 +30,7 @@ app.use(cors());
 
 app.use('/api/my/user', myUserRoute);
 app.use('/api/my/restaurant', myRestaurantRoute);
+app.use('/api/restaurant', restaurantRoute);
 
 app.get('/health', (req, res) => {
   res.send({ message: 'health OK!' });
