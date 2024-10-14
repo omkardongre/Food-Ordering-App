@@ -1,8 +1,10 @@
 import { useSearchRestaurants } from '@/api/RestaurantApi';
+import CuisineFilter from '@/components/CuisineFilter';
 import PaginationSelector from '@/components/PaginationSelector';
 import SearchBar, { SearchForm } from '@/components/SearchBar';
 import SearchResultCard from '@/components/SearchResultCard';
 import SearchResultInfo from '@/components/SearchResultInfo';
+import SortOptionDropDown from '@/components/SortOptionDropDown';
 
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -10,6 +12,8 @@ import { useParams } from 'react-router-dom';
 export type SearchState = {
   searchQuery: string;
   page: number;
+  selectedCuisines: string[];
+  sortOption: string;
 };
 
 const SearchPage = () => {
@@ -17,13 +21,27 @@ const SearchPage = () => {
   const [searchState, setSearchState] = useState<SearchState>({
     searchQuery: '',
     page: 1,
+    selectedCuisines: [],
+    sortOption: 'bestMatch',
   });
+
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
+
   const { results, isLoading } = useSearchRestaurants(searchState, city);
+
+  const setSelectedCuisines = (cuisines: string[]) => {
+    setSearchState((prevState) => ({
+      ...prevState,
+      selectedCuisines: cuisines,
+      page: 1,
+    }));
+  };
 
   const setPage = (page: number) => {
     setSearchState((prevState) => ({
       ...prevState,
       page,
+      selectedCuisines: [],
     }));
   };
 
@@ -31,6 +49,14 @@ const SearchPage = () => {
     setSearchState((prevState) => ({
       ...prevState,
       searchQuery: searchFormDate.searchQuery,
+      page: 1,
+    }));
+  };
+
+  const setSortOption = (sortOption: string) => {
+    setSearchState((prevState) => ({
+      ...prevState,
+      sortOption,
       page: 1,
     }));
   };
@@ -52,16 +78,30 @@ const SearchPage = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[250px-1fr] gap-5">
-      <div id="cuisine-list">insert cuisine here :)</div>
+    <div className="grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-5">
+      <div id="cuisines-list">
+        <CuisineFilter
+          onChange={setSelectedCuisines}
+          selectedCuisines={searchState.selectedCuisines}
+          isExpanded={isExpanded}
+          onExpandClick={() => setIsExpanded((prevState) => !prevState)}
+        />
+      </div>
       <div id="main-content" className="flex flex-col gap-5">
         <SearchBar
           searchQuery={searchState.searchQuery}
           onSubmit={setSearchQuery}
-          placeHolder="Search by Cuisine or Restaurant name"
+          placeHolder="Search by Cuisine or Restaurant Name"
           onReset={resetSearch}
         />
-        <SearchResultInfo city={city} total={results.pagination.total} />
+        <div className="flex justify-between flex-col gap-3 lg:flex-row">
+          <SearchResultInfo city={city} total={results.pagination.total} />
+          <SortOptionDropDown
+            onChange={setSortOption}
+            sortOption={searchState.sortOption}
+          />
+        </div>
+
         {results.data.map((restaurant) => (
           <SearchResultCard key={restaurant._id} restaurant={restaurant} />
         ))}
