@@ -22,6 +22,7 @@ export const useSearchRestaurants = (
         .map((cuisine) => encodeURIComponent(cuisine))
         .join(',')
     );
+    params.set('sortOption', searchState.sortOption);
 
     const response = await fetch(
       `${API_BASE_URL}/api/restaurant/search/${encodeURIComponent(city)}?${params.toString()}`,

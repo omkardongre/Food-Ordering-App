@@ -4,6 +4,7 @@ import PaginationSelector from '@/components/PaginationSelector';
 import SearchBar, { SearchForm } from '@/components/SearchBar';
 import SearchResultCard from '@/components/SearchResultCard';
 import SearchResultInfo from '@/components/SearchResultInfo';
+import SortOptionDropDown from '@/components/SortOptionDropDown';
 
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -12,6 +13,7 @@ export type SearchState = {
   searchQuery: string;
   page: number;
   selectedCuisines: string[];
+  sortOption: string;
 };
 
 const SearchPage = () => {
@@ -20,6 +22,7 @@ const SearchPage = () => {
     searchQuery: '',
     page: 1,
     selectedCuisines: [],
+    sortOption: 'bestMatch',
   });
 
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
@@ -50,6 +53,14 @@ const SearchPage = () => {
     }));
   };
 
+  const setSortOption = (sortOption: string) => {
+    setSearchState((prevState) => ({
+      ...prevState,
+      sortOption,
+      page: 1,
+    }));
+  };
+
   const resetSearch = () => {
     setSearchState((prevState) => ({
       ...prevState,
@@ -67,8 +78,8 @@ const SearchPage = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[250px-1fr] gap-5">
-      <div id="cuisine-list">
+    <div className="grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-5">
+      <div id="cuisines-list">
         <CuisineFilter
           onChange={setSelectedCuisines}
           selectedCuisines={searchState.selectedCuisines}
@@ -80,10 +91,17 @@ const SearchPage = () => {
         <SearchBar
           searchQuery={searchState.searchQuery}
           onSubmit={setSearchQuery}
-          placeHolder="Search by Cuisine or Restaurant name"
+          placeHolder="Search by Cuisine or Restaurant Name"
           onReset={resetSearch}
         />
-        <SearchResultInfo city={city} total={results.pagination.total} />
+        <div className="flex justify-between flex-col gap-3 lg:flex-row">
+          <SearchResultInfo city={city} total={results.pagination.total} />
+          <SortOptionDropDown
+            onChange={setSortOption}
+            sortOption={searchState.sortOption}
+          />
+        </div>
+
         {results.data.map((restaurant) => (
           <SearchResultCard key={restaurant._id} restaurant={restaurant} />
         ))}
