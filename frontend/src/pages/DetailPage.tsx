@@ -1,8 +1,9 @@
 import { useGetRestaurant } from '@/api/RestaurantApi';
+import CheckoutButton from '@/components/CheckoutButton';
 import FoodItemMenu from '@/components/FoodItemMenu';
 import OrderSummary from '@/components/OrderSummary';
 import RestaurantInfo from '@/components/RestaurantInfo';
-import { Card } from '@/components/ui/card';
+import { Card, CardFooter } from '@/components/ui/card';
 import { MenuItem } from '@/types';
 import { AspectRatio } from '@radix-ui/react-aspect-ratio';
 import { useState } from 'react';
@@ -18,7 +19,13 @@ export type CartItem = {
 const DetailPage = () => {
   const { restaurantId } = useParams<{ restaurantId: string }>();
   const { restaurant, isLoading } = useGetRestaurant(restaurantId as string);
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+    const cartItems = sessionStorage.getItem(`cartItems-${restaurantId}`);
+    if (cartItems) {
+      return JSON.parse(cartItems);
+    }
+    return [];
+  });
 
   const addToCart = (menuItem: MenuItem) => {
     setCartItems((prevCartItems) => {
@@ -52,13 +59,27 @@ const DetailPage = () => {
         ];
       }
 
+      sessionStorage.setItem(
+        `cartItems-${restaurantId}`,
+        JSON.stringify(newCartItems)
+      );
+
       return newCartItems;
     });
   };
 
   const removeFromCart = (cartItemId: string) => {
     setCartItems((prevCartItems) => {
-      return prevCartItems.filter((item) => item._id !== cartItemId);
+      const updatedCartItem = prevCartItems.filter(
+        (item) => item._id !== cartItemId
+      );
+
+      sessionStorage.setItem(
+        `cartItems-${restaurantId}`,
+        JSON.stringify(updatedCartItem)
+      );
+
+      return updatedCartItem;
     });
   };
 
@@ -93,6 +114,9 @@ const DetailPage = () => {
               cartItems={cartItems}
               removeFromCart={removeFromCart}
             />
+            <CardFooter>
+              <CheckoutButton />
+            </CardFooter>
           </Card>
         </div>
       </div>
