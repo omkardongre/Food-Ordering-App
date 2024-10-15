@@ -7,7 +7,7 @@ import { Separator } from '@radix-ui/react-separator';
 import CuisinesSection from './CuisinesSection';
 import MenuSection from './MenuSection';
 import ImageSection from './ImageSection';
-import LoadingPageButton from '@/components/LoadingButton';
+import LoadingButton from '@/components/LoadingButton';
 import { Button } from '@/components/ui/button';
 import { Restaurant } from '@/types';
 import { useEffect } from 'react';
@@ -121,11 +121,7 @@ const ManageRestaurantForm = ({ restaurant, onSave, isLoading }: Props) => {
         <MenuSection />
         <Separator />
         <ImageSection />
-        {isLoading ? (
-          <LoadingPageButton />
-        ) : (
-          <Button type="submit">Save</Button>
-        )}
+        {isLoading ? <LoadingButton /> : <Button type="submit">Save</Button>}
       </form>
     </Form>
   );
