@@ -1,5 +1,5 @@
 import { SearchState } from '@/pages/SearchPage';
-import { RestaurantResponse } from '@/types';
+import { Restaurant, RestaurantResponse } from '@/types';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useQuery } from 'react-query';
 
@@ -48,4 +48,38 @@ export const useSearchRestaurants = (
   );
 
   return { results, isLoading };
+};
+
+export const useGetRestaurant = (restaurantId: string) => {
+  const { getAccessTokenSilently } = useAuth0();
+
+  const createGetRestaurant = async (): Promise<Restaurant> => {
+    const accessToken = await getAccessTokenSilently();
+
+    const response = await fetch(
+      `${API_BASE_URL}/api/restaurant/${restaurantId}`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to get restaurant');
+    }
+
+    return response.json();
+  };
+
+  const { data: restaurant, isLoading } = useQuery(
+    ['getRestaurant', restaurantId],
+    createGetRestaurant,
+    {
+      enabled: !!restaurantId,
+    }
+  );
+
+  return { restaurant, isLoading };
 };
