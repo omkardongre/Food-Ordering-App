@@ -4,6 +4,7 @@ import FoodItemMenu from '@/components/FoodItemMenu';
 import OrderSummary from '@/components/OrderSummary';
 import RestaurantInfo from '@/components/RestaurantInfo';
 import { Card, CardFooter } from '@/components/ui/card';
+import { UserFormData } from '@/forms/user-profile-form/UserProfileForm';
 import { MenuItem } from '@/types';
 import { AspectRatio } from '@radix-ui/react-aspect-ratio';
 import { useState } from 'react';
@@ -87,6 +88,10 @@ const DetailPage = () => {
     return <div>Loading...</div>;
   }
 
+  function onCheckout(userFormData: UserFormData) {
+    console.log('Checkout', userFormData);
+  }
+
   return (
     <div className="flex flex-col gap-10">
       <AspectRatio ratio={16 / 5}>
@@ -115,7 +120,10 @@ const DetailPage = () => {
               removeFromCart={removeFromCart}
             />
             <CardFooter>
-              <CheckoutButton />
+              <CheckoutButton
+                disabled={cartItems.length === 0}
+                onCheckout={onCheckout}
+              />
             </CardFooter>
           </Card>
         </div>
