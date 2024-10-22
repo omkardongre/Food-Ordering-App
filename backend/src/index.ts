@@ -7,6 +7,7 @@ import myRestaurantRoute from './routes/MyRestaurantRoute';
 import restaurantRoute from './routes/RestaurantRoute';
 import orderRoute from './routes/OrderRoute';
 import { v2 as cloudinary } from 'cloudinary';
+import errorHandler from './middleware/errorHandler';
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ app.use('/api/my/user', myUserRoute);
 app.use('/api/my/restaurant', myRestaurantRoute);
 app.use('/api/restaurant', restaurantRoute);
 app.use('/api/order', orderRoute);
+app.use(errorHandler);
 
 app.get('/health', (req, res) => {
   res.send({ message: 'health OK!' });
