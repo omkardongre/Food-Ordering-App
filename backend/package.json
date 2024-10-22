@@ -4,7 +4,8 @@
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
-    "dev": "npm run build && nodemon",
+    "dev": "concurrently \"npm run stripe\" \"tsc --watch\" \"nodemon dist/index.js\"",
+    "stripe": "stripe listen --forward-to http://localhost:7000/api/order/checkout/webhook",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\"",
@@ -19,6 +20,7 @@
   "dependencies": {
     "@types/multer": "^1.4.12",
     "cloudinary": "^2.5.0",
+    "concurrently": "^9.0.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.20.0",
