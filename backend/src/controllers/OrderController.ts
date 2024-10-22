@@ -1,7 +1,9 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import Stripe from 'stripe';
 import Restaurant, { MenuItemType } from '../models/restaurant';
 import Order from '../models/order';
+import logger from '../utils/logger';
+import { AppError } from '../utils/errors';
 
 const STRIPE = new Stripe(process.env.STRIPE_API_KEY as string);
 const FRONTEND_URL = process.env.FRONTEND_URL as string;
@@ -22,12 +24,13 @@ type CheckoutSessionRequest = {
   restaurantId: string;
 };
 
-const createCheckoutSession = async (req: Request, res: Response) => {
+const createCheckoutSession = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const checkoutSessionRequest: CheckoutSessionRequest = req.body as CheckoutSessionRequest;
     const restaurant = await Restaurant.findById(checkoutSessionRequest.restaurantId);
+
     if (!restaurant) {
-      return res.status(404).send('Restaurant not found');
+      throw new AppError('Restaurant not found', 404);
     }
 
     const newOrder = new Order({
@@ -48,14 +51,18 @@ const createCheckoutSession = async (req: Request, res: Response) => {
     );
 
     if (!session.url) {
-      return res.status(500).send('Error creating checkout session');
+      throw new AppError('Error creating checkout session', 500);
     }
 
     await newOrder.save();
+    logger.info(`Checkout session created for order ${newOrder._id}`);
     return res.status(200).json({ url: session.url });
   } catch (error) {
-    console.log(error);
-    res.status(500).send('Error creating checkout session');
+    logger.error(
+      `Error creating checkout session: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      { stack: error instanceof Error ? error.stack : undefined },
+    );
+    next(error);
   }
 };
 
@@ -66,7 +73,7 @@ function createLineItems(
   const lineItems = checkoutSessionRequest.cartItems.map((cartItem) => {
     const menuItem = menuItems.find((item) => item._id.toString() === cartItem.menuItemId);
     if (!menuItem) {
-      throw new Error('Menu item not found');
+      throw new AppError('Menu item not found', 404);
     }
 
     const lineItem: Stripe.Checkout.SessionCreateParams.LineItem = {
@@ -118,7 +125,7 @@ async function createSession(
   return sessionData;
 }
 
-const stripeWebhookHandler = async (req: Request, res: Response) => {
+const stripeWebhookHandler = async (req: Request, res: Response, next: NextFunction) => {
   let event;
   try {
     const sig = req.headers['stripe-signature'] as string;
@@ -127,17 +134,21 @@ const stripeWebhookHandler = async (req: Request, res: Response) => {
     if (event.type === 'checkout.session.completed') {
       const order = await Order.findById(event.data.object.metadata?.orderId);
       if (!order) {
-        return res.status(404).send('Order not found');
+        throw new AppError('Order not found', 404);
       }
       order.totalAmount = event.data.object.amount_total;
       order.status = 'paid';
       await order.save();
+      logger.info(`Order ${order._id} marked as paid`);
     }
 
     return res.status(200).send('Webhook received');
   } catch (error) {
-    console.log(error);
-    return res.status(500).send('Error creating checkout session');
+    logger.error(
+      `Stripe webhook error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      { stack: error instanceof Error ? error.stack : undefined },
+    );
+    next(error);
   }
 };
 
