@@ -117,6 +117,12 @@ async function createSession(
   return sessionData;
 }
 
+const stripeWebhookHandler = async (req: Request, res: Response) => {
+  console.log(req.body);
+  res.status(200).send('Webhook received');
+};
+
 export default {
   createCheckoutSession,
+  stripeWebhookHandler,
 };
