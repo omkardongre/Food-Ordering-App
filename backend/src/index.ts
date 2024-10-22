@@ -35,7 +35,6 @@ app.use('/api/my/user', myUserRoute);
 app.use('/api/my/restaurant', myRestaurantRoute);
 app.use('/api/restaurant', restaurantRoute);
 app.use('/api/order', orderRoute);
-app.use(errorHandler);
 
 app.get('/health', (req, res) => {
   res.send({ message: 'health OK!' });
@@ -44,6 +43,8 @@ app.get('/health', (req, res) => {
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
+
+app.use(errorHandler);
 
 app.listen(7000, () => {
   console.log('Server is running on port 7000');
