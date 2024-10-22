@@ -7,6 +7,7 @@ import myRestaurantRoute from './routes/MyRestaurantRoute';
 import restaurantRoute from './routes/RestaurantRoute';
 import orderRoute from './routes/OrderRoute';
 import { v2 as cloudinary } from 'cloudinary';
+import errorHandler from './middleware/errorHandler';
 
 dotenv.config();
 
@@ -42,6 +43,8 @@ app.get('/health', (req, res) => {
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
+
+app.use(errorHandler);
 
 app.listen(7000, () => {
   console.log('Server is running on port 7000');
