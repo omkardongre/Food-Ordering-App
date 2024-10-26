@@ -1,16 +1,23 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import Restaurant from '../models/restaurant';
 import mongoose from 'mongoose';
 import { v2 as cloudinary } from 'cloudinary';
+import { AppError } from '../utils/errors'; // Import custom errors if needed
 
-const createMyRestaurant = async (req: Request, res: Response) => {
+const createMyRestaurant = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const existingRestaurant = await Restaurant.findOne({ user: req.userId });
     if (existingRestaurant) {
-      return res.status(409).json({ message: 'Restaurant already exists' });
+      throw new AppError('Restaurant already exists', 409);
     }
 
     const image = req.file as Express.Multer.File;
+    if (!image) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'Please provide an image for your restaurant.' });
+    }
+
     const base64Image = image.buffer.toString('base64');
     const dataURI = `data:${image.mimetype};base64,${base64Image}`;
     const uploadResponse = await cloudinary.uploader.upload(dataURI);
@@ -22,21 +29,19 @@ const createMyRestaurant = async (req: Request, res: Response) => {
     await restaurant.save();
     res.status(201).send(restaurant);
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: 'Error creating restaurant' });
+    next(error); // Pass error to the centralized handler
   }
 };
 
-const getMyRestaurant = async (req: Request, res: Response) => {
+const getMyRestaurant = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const restaurant = await Restaurant.findOne({ user: req.userId });
     if (!restaurant) {
-      return res.status(404).json({ message: 'Restaurant not found' });
+      throw new AppError(`Restaurant not found for user ID: ${req.userId}`, 404);
     }
     res.status(200).json(restaurant);
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: 'Error getting restaurant' });
+    next(error); // Pass error to the centralized handler
   }
 };
 

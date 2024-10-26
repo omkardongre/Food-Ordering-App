@@ -17,7 +17,7 @@ export type SearchState = {
 };
 
 const SearchPage = () => {
-  const { city } = useParams<{ city: string }>();
+  const { city = '' } = useParams<{ city: string }>();
   const [searchState, setSearchState] = useState<SearchState>({
     searchQuery: '',
     page: 1,
