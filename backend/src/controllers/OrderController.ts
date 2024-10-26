@@ -152,7 +152,21 @@ const stripeWebhookHandler = async (req: Request, res: Response, next: NextFunct
   }
 };
 
+const getMyOrders = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const orders = await Order.find({ user: req.userId }).populate('restaurant').populate('user');
+    return res.status(200).json(orders);
+  } catch (error) {
+    logger.error(
+      `Error fetching my orders: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      { stack: error instanceof Error ? error.stack : undefined },
+    );
+    next(error);
+  }
+};
+
 export default {
   createCheckoutSession,
   stripeWebhookHandler,
+  getMyOrders,
 };
