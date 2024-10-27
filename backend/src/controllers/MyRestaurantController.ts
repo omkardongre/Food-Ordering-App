@@ -3,6 +3,7 @@ import Restaurant from '../models/restaurant';
 import mongoose from 'mongoose';
 import { v2 as cloudinary } from 'cloudinary';
 import { AppError } from '../utils/errors'; // Import custom errors if needed
+import Order from '../models/order';
 
 const createMyRestaurant = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -45,7 +46,23 @@ const getMyRestaurant = async (req: Request, res: Response, next: NextFunction) 
   }
 };
 
+const getMyRestaurantOrders = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const restaurant = await Restaurant.findOne({ user: req.userId });
+    if (!restaurant) {
+      throw new AppError(`Restaurant not found for user ID: ${req.userId}`, 404);
+    }
+    const orders = await Order.find({ restaurant: restaurant._id })
+      .populate('restaurant')
+      .populate('user');
+    res.status(200).json(orders);
+  } catch (error) {
+    next(error); // Pass error to the centralized handler
+  }
+};
+
 export default {
   createMyRestaurant,
   getMyRestaurant,
+  getMyRestaurantOrders,
 };
