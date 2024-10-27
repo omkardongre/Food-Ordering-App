@@ -1,12 +1,25 @@
-import { Order } from '@/types';
+import { Order, OrderStatus } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Separator } from './ui/separator';
 import { Badge } from './ui/badge';
 import { Label } from './ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from './ui/select';
 import { ORDER_STATUS } from '@/config/order-status-config';
+import { useUpdateMyRestaurantOrder } from '@/api/MyRestaurantApi';
 
 const OrderItemCard = ({ order }: { order: Order }) => {
+  const { updateRestaurantStatus } = useUpdateMyRestaurantOrder();
+
+  const handleUpdateStatus = (status: OrderStatus) => {
+    updateRestaurantStatus({ orderId: order._id, status });
+  };
+
   const getTime = () => {
     const orderDateTime = new Date(order.createdAt);
     const hours = orderDateTime.getHours();
@@ -57,7 +70,10 @@ const OrderItemCard = ({ order }: { order: Order }) => {
         </div>
         <div className="flex flex-col gap-2 space-y-1.5">
           <Label>What is status of this order?</Label>
-          <Select>
+          <Select
+            onValueChange={(value) => handleUpdateStatus(value as OrderStatus)}
+            defaultValue={order.status}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Select status" />
             </SelectTrigger>
