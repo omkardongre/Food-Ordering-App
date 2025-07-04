@@ -22,6 +22,18 @@ export const useCreateMyRestaurant = () => {
     });
 
     if (!response.ok) {
+      if (response.status === 409) {
+        // Try to parse JSON error message, fallback to default if not possible
+        let data = {};
+        try {
+          data = await response.json();
+        } catch (error) {
+          console.error('Failed to parse JSON error message:', error);
+        }
+        throw new Error(
+          (data as { message?: string }).message || 'Restaurant already exists'
+        );
+      }
       throw new Error('Failed to create restaurant');
     }
 
@@ -33,10 +45,15 @@ export const useCreateMyRestaurant = () => {
     isLoading,
     isSuccess,
     isError,
+    error,
   } = useMutation(createMyRestaurantRequest);
 
   if (isError) {
-    toast.error('Failed to create restaurant');
+    if ((error as Error)?.message === 'Restaurant already exists') {
+      toast.error('Restaurant already exists');
+    } else {
+      toast.error('Failed to create restaurant');
+    }
   }
 
   if (isSuccess) {

@@ -58,7 +58,7 @@ export type Order = {
     email: string;
   };
   createdAt: string;
-  totalPrice: number;
+  totalAmount: number;
   status: OrderStatus;
   restaurantId: string;
 };

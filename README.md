@@ -75,7 +75,7 @@ A full-stack food ordering platform built with React, Express, and MongoDB. This
 
 4. **Stripe Webhook Setup (for payment testing)**
    ```bash
-   stripe listen --forward-to localhost:4000/api/order/checkout/webhook
+   stripe listen --forward-to localhost:7000/api/order/checkout/webhook
    ```
 
 
